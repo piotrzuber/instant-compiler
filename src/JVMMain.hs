@@ -24,8 +24,8 @@ jasminCmd = "java -jar lib/jasmin.jar -d "
 runFile :: FilePath -> IO ()
 runFile inputPath = readFile inputPath >>= run inputPath
 
-run :: String -> FilePath -> IO ()
-run instantCode outputPath =
+run :: FilePath -> String -> IO ()
+run outputPath instantCode =
     case pProgram (myLexer instantCode) of
         Bad err -> exitWithErrorMsg $ "Parse error." ++ err
         Ok tree -> do

@@ -33,7 +33,9 @@ computeStack op size1 size2 = case getCommutativity op of
 pushInteger :: Integer -> MachineCode
 pushInteger value
     | value < 6 = ["  iconst_" ++ (show value)]
-    | otherwise = ["  bipush " ++ (show value)]
+    | value < 128 = ["  bipush " ++ (show value)]
+    | value < 32768 = ["  sipush " ++ (show value)]
+    | otherwise = ["  ldc " ++ (show value)]
 
 instance Show ArithmeticOp where
     show AddOp = "iadd"
@@ -46,11 +48,9 @@ compileOp op exp1 exp2 = exp1 ++ exp2 ++ ["  " ++ (show op)]
 
 printValue :: MachineCode -> MachineCode
 printValue code = [
-        "  getstatic",
-        "    java/lang/System/out Ljava/io/PrintStream;"
+        "  getstatic java/lang/System/out Ljava/io/PrintStream;"
     ] ++ code ++ [
-        "  invokevirtual",
-        "    java/io/PrintStream/println(I)V"
+        "  invokevirtual java/io/PrintStream/println(I)V"
     ]
 
 data LocalVarOp = JVMLoad | JVMStore

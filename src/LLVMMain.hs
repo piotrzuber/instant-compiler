@@ -21,8 +21,8 @@ exitWithErrorMsg msg = do
 runFile :: FilePath -> IO ()
 runFile inputPath = readFile inputPath >>= run inputPath
 
-run :: String -> FilePath -> IO ()
-run instantCode outputPath =
+run :: FilePath -> String -> IO ()
+run outputPath instantCode =
     case pProgram (myLexer instantCode) of
         Bad err -> exitWithErrorMsg $ "Parse error." ++ err
         Ok tree -> do
@@ -31,8 +31,7 @@ run instantCode outputPath =
                 Left err -> exitWithErrorMsg $ show err
                 Right (result, jvmState) -> do
                     writeFile (replaceExtension outputPath "ll") $ unlines $ llvmPreamble ++ result ++ llvmMainEnd
-                    child <- runCommand $ "llvm-as" ++ (takeDirectory outputPath) ++ 
-                        " " ++ (replaceExtension outputPath "ll")
+                    child <- runCommand $ "llvm-as " ++ (replaceExtension outputPath "ll")
                     waitForProcess child
                     exitSuccess
 

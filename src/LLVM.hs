@@ -26,7 +26,7 @@ instance Show ArithmeticOp where
     show AddOp = "add"
     show SubOp = "sub"
     show MulOp = "mul"
-    show DivOp = "div"
+    show DivOp = "sdiv"
 
 getIndex :: LLVMMonad Integer
 getIndex = do
@@ -45,7 +45,10 @@ compileOp op outIdx (Number n) (Evaluation inIdx code) =
         "  %" ++ (show outIdx) ++ " = " ++ (show op) ++ " i32 " ++ (show n) ++ ", %" ++ (show inIdx)
     ]
 
-compileOp op outIdx (Evaluation inIdx code) (Number n) = compileOp op outIdx (Number n) (Evaluation inIdx code)
+compileOp op outIdx (Evaluation inIdx code) (Number n) = 
+    code ++ [
+        "  %" ++ (show outIdx) ++ " = " ++ (show op) ++ " i32 %" ++ (show inIdx) ++ ", " ++ (show n) 
+    ]
 
 compileOp op outIdx (Evaluation in1 code1) (Evaluation in2 code2) =
     code1 ++ code2 ++ [
@@ -53,7 +56,7 @@ compileOp op outIdx (Evaluation in1 code1) (Evaluation in2 code2) =
     ]
 
 compileOp op outIdx (Number n1) (Number n2) = [
-        "  %" ++ (show n1) ++ " = " ++ (show op) ++ " i32 " ++ (show n1) ++ ", " ++ (show n2)
+        "  %" ++ (show outIdx) ++ " = " ++ (show op) ++ " i32 " ++ (show n1) ++ ", " ++ (show n2)
     ]
 
 llvmStore :: String -> ExpResult -> MachineCode
@@ -67,7 +70,7 @@ llvmStore target value = case value of
         ]
 
 llvmLoadIns :: Integer -> String -> String
-llvmLoadIns target source = "  %" ++ (show target) ++ " = load i32* %" ++ source ++ ", align 4"
+llvmLoadIns target source = "  %" ++ (show target) ++ " = load i32, i32* %" ++ source
 
 llvmLoad :: Integer -> String -> MachineCode
 llvmLoad target source = [(llvmLoadIns target source)]

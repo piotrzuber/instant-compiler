@@ -1,0 +1,16 @@
+# Ignore Haskell specific files
+*.hi
+*.o
+*.x
+*.y
+
+# Ignore output files
+insc_*
+
+# Ignore BNFC generated files
+*Instant*
+!InstantError.hs
+!Instant.cf
+
+# Exclude *.hs files
+!*.hs
